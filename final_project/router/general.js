@@ -72,9 +72,40 @@ public_users.get("/isbn/:isbn", async (req, res) => {
 })
 
 // Get book details based on author
-public_users.get("/author/:author", function (req, res) {
-  // write your code here
-  return res.status(300).json({ message: "Yet to be implemented" })
+public_users.get("/author/:author", async (req, res) => {
+  // Retrieve author from URL path
+  const { author } = req.params
+
+  try {
+    // Fetch books data
+    const booksData = await getBooks()
+
+    // Filter books by matching author (case-insensitive)
+    const booksByAuthor = Object.values(booksData).filter(
+      book => book.author.toLowerCase() === author.toLowerCase()
+    )
+
+    // Check if any books are found
+    if (booksByAuthor.length > 0) {
+      return res
+        .status(200)
+        .json({ success: true, message: "Books found", data: booksByAuthor })
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: `No books found by author: ${author}`,
+      })
+    }
+  } catch (error) {
+    console.error(`Error fetching books: ${error.message}`)
+
+    // Handle unexpected errors
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while fetching books.",
+      error: error.message, // Include error details for debugging
+    })
+  }
 })
 
 // Get all books based on title
