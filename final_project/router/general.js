@@ -9,8 +9,23 @@ const getBooks = async () => {
 }
 
 public_users.post("/register", (req, res) => {
-  // write your code here
-  return res.status(300).json({ message: "Yet to be implemented" })
+  const { username, password } = req.body
+
+  // Check if username and password are provided
+  if (!username || !password) {
+    return res.status(400).json({ message: "Username and password required." })
+  }
+
+  // Check if username already exists
+  if (isValid(username)) {
+    return res.status(400).json({ message: "Username already exists." })
+  }
+
+  // Register the new user
+  users.push({ username, password })
+
+  // Respond with a success message
+  res.status(201).json({ message: "Username successfully registered." })
 })
 
 // Get the book list available in the shop
