@@ -144,10 +144,46 @@ public_users.get("/title/:title", async (req, res) => {
   }
 })
 
-//  Get book review
-public_users.get("/review/:isbn", function (req, res) {
-  // write your code here
-  return res.status(300).json({ message: "Yet to be implemented" })
+//  Get book review based on ISBN
+public_users.get("/review/:isbn", async (req, res) => {
+  const { isbn } = req.params // Retrieve ISBN from URL path
+
+  try {
+    // Fetch books data
+    const booksData = await getBooks()
+
+    // Check if book exists
+    const book = booksData[isbn]
+
+    if (book) {
+      const reviews = book.reviews
+
+      if (reviews && Object.keys(reviews).length > 0) {
+        res
+          .status(200)
+          .json({ success: true, message: "Reviews found", data: reviews })
+      } else {
+        res.status(404).json({
+          success: false,
+          message: `No reviews found for the book with ISBN: ${isbn}`,
+        })
+      }
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: `No book found with ISBN: ${isbn}`,
+      })
+    }
+  } catch (error) {
+    console.error(`Error fetching book details: ${error.message}`)
+
+    // Handle unexpected errors
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while fetching book reviews.",
+      error: error.message, // Include error details for debugging
+    })
+  }
 })
 
 module.exports.general = public_users
