@@ -11,8 +11,10 @@ const isValid = username => {
 }
 
 const authenticatedUser = (username, password) => {
-  // returns boolean
-  // write code to check if username and password match the one we have in records.
+  // Check if username and password match the records; returns boolean
+  return users.some(
+    user => user.username === username && user.password === password
+  )
 }
 
 //only registered users can login
