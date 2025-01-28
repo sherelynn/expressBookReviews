@@ -17,10 +17,34 @@ const authenticatedUser = (username, password) => {
   )
 }
 
-//only registered users can login
+// Only registered users can login
 reg_users.post("/login", (req, res) => {
-  // write your code here
-  return res.status(300).json({ message: "Yet to be implemented" })
+  const { username, password } = req.body
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username and password are required." })
+  }
+
+  // Authenticate the user
+  if (authenticatedUser(username, password)) {
+    // Generate a JWT token
+    const token = jwt.sign({ username }, "access", { expiresIn: "1h" })
+
+    // Save the token in the session
+    if (!req.session.authorization) {
+      req.session.authorization = {}
+    }
+
+    req.session.authorization = { username, accessToken: token }
+
+    return res
+      .status(200)
+      .json({ message: "User successfully logged in.", token })
+  } else {
+    return res.status(401).json({ message: "Invalid username or password." })
+  }
 })
 
 // Add a book review
