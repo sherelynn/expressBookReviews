@@ -109,9 +109,39 @@ public_users.get("/author/:author", async (req, res) => {
 })
 
 // Get all books based on title
-public_users.get("/title/:title", function (req, res) {
-  // write your code here
-  return res.status(300).json({ message: "Yet to be implemented" })
+public_users.get("/title/:title", async (req, res) => {
+  // Retrieve title from URL path
+  const { title } = req.params
+
+  try {
+    const booksData = await getBooks()
+
+    // Filter books by matching title (case insensitive)
+    const booksByTitle = Object.values(booksData).filter(
+      book => book.title.toLowerCase() == title.toLowerCase()
+    )
+
+    // Check if any books are found
+    if (booksByTitle.length > 0) {
+      return res
+        .status(200)
+        .json({ success: true, message: "Books found.", data: booksByTitle })
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: `No books found by title: ${title}`,
+      })
+    }
+  } catch (error) {
+    console.error(`Error fetching books: ${error.message}`)
+
+    // Handle unexpected errors
+    return res.status(500).json({
+      success: false,
+      message: "Error occurred while fetching books.",
+      error: error.message, // Include error details for debugging
+    })
+  }
 })
 
 //  Get book review
