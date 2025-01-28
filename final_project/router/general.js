@@ -4,15 +4,34 @@ let isValid = require("./auth_users.js").isValid
 let users = require("./auth_users.js").users
 const public_users = express.Router()
 
+const getBooks = async () => {
+  return books
+}
+
 public_users.post("/register", (req, res) => {
   // write your code here
   return res.status(300).json({ message: "Yet to be implemented" })
 })
 
 // Get the book list available in the shop
-public_users.get("/", function (req, res) {
-  // write your code here
-  return res.status(300).json({ message: "Yet to be implemented" })
+// Use async/await
+public_users.get("/", async (req, res) => {
+  try {
+    // Fetch books data
+    const booksData = await getBooks()
+
+    // Respond with the data
+    return res.status(200).json(booksData)
+  } catch (error) {
+    console.error("Error fetching books: ", error.message)
+
+    // Respond with detailed error information
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch books.",
+      error: error.message, // Include error details for debugging
+    })
+  }
 })
 
 // Get book details based on ISBN
