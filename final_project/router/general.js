@@ -35,9 +35,40 @@ public_users.get("/", async (req, res) => {
 })
 
 // Get book details based on ISBN
-public_users.get("/isbn/:isbn", function (req, res) {
-  // write your code here
-  return res.status(300).json({ message: "Yet to be implemented" })
+public_users.get("/isbn/:isbn", async (req, res) => {
+  // Retrieve ISBN parameter value from URL path
+  const { isbn } = req.params
+
+  try {
+    // Fetch books data
+    const booksData = await getBooks()
+
+    // Check if the book exists
+    const bookByIsbn = booksData[isbn]
+
+    if (bookByIsbn) {
+      return res.status(200).json({
+        success: true,
+        message: "Book found.",
+        data: bookByIsbn,
+      })
+    } else {
+      // If the book is not found, return 404 response
+      return res.status(404).json({
+        success: false,
+        message: `No book found with ISBN: ${isbn}`,
+      })
+    }
+  } catch (error) {
+    console.error(`Error fetching book details: ${error.message}`)
+
+    // Handle unexpected errors
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching book details",
+      error: error.message, // Include error details for debugging
+    })
+  }
 })
 
 // Get book details based on author
