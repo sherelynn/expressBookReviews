@@ -49,8 +49,55 @@ reg_users.post("/login", (req, res) => {
 
 // Add a book review
 reg_users.put("/auth/review/:isbn", (req, res) => {
-  // write your code here
-  return res.status(300).json({ message: "Yet to be implemented" })
+  const { isbn } = req.params
+  const { review } = req.query
+  const username = req.user?.username
+
+  // Validate the input
+  if (!isbn || !review) {
+    return res
+      .status(400)
+      .json({ message: "ISBN and review text are required." })
+  }
+
+  if (!books[isbn]) {
+    return res.status(404).json({ message: "Book not found." })
+  }
+
+  if (!books[isbn].reviews) {
+    books[isbn].reviews = {}
+  }
+
+  books[isbn].reviews[username] = review
+
+  res.status(200).json({
+    message: "Review added/updated successfully.",
+    reviews: books[isbn].reviews,
+  })
+})
+
+// Delete a book review
+reg_users.delete("/auth/review/:isbn", (req, res) => {
+  const { isbn } = req.params
+  const username = req.user?.username
+
+  if (!books[isbn]) {
+    return res.status(404).json({ message: "Book not found." })
+  }
+
+  if (!books[isbn].reviews || !books[isbn].reviews[username]) {
+    return res
+      .status(404)
+      .json({ message: "Review not found under your username. " })
+  }
+
+  // Delete the review
+  delete books[isbn].reviews[username]
+
+  res.status(200).json({
+    message: "Review deleted successfully.",
+    reviews: books[isbn].reviews,
+  })
 })
 
 module.exports.authenticated = reg_users
